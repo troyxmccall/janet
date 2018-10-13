@@ -141,9 +141,20 @@ func (b *Bot) Listen() {
 
 // SendMessage sends a message to a Slack channel.
 func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
-	msg := b.Config.Slack.NewOutgoingMessage(message, channel)
-	msg.ThreadTimestamp = thread
-	b.Config.Slack.SendMessage(msg)
+
+	b.Config.Log.Info("sending message as")
+	b.Config.Log.Info(whichJanet)
+
+	if whichJanet == "badJanet" {
+		msg := b.Config.BadJanetSlack.NewOutgoingMessage(message, channel)
+		msg.ThreadTimestamp = thread
+		b.Config.BadJanetSlack.SendMessage(msg)
+
+	} else {
+		msg := b.Config.Slack.NewOutgoingMessage(message, channel)
+		msg.ThreadTimestamp = thread
+		b.Config.Slack.SendMessage(msg)
+	}
 }
 
 // DMUser sends a message directly to a Slack user.
@@ -264,6 +275,11 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 		}
 	}
 
+	b.Config.Log.Info("testing to see if these are bad points")
+	test := regexps.TakePoints.MatchString(ev.Text)
+
+	b.Config.Log.Info(strconv.FormatBool(test))
+
 	switch {
 	case regexps.URL.MatchString(ev.Text):
 		b.printURL(ev)
@@ -272,6 +288,7 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 		b.applyPoints(ev, "")
 
 	case regexps.TakePoints.MatchString(ev.Text):
+		b.Config.Log.Info("bad points - using bad janet")
 		whichJanet := "badJanet"
 		b.applyPoints(ev, whichJanet)
 
