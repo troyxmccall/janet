@@ -182,7 +182,7 @@ func (b *Bot) handleError(err error, channel, thread string) bool {
 			message = "an error has occurred."
 		}
 
-		b.SendMessage(message, channel, thread, "badJanet")
+		b.SendMessage(message, channel, thread, "")
 	}
 
 	return true
@@ -319,7 +319,12 @@ func (b *Bot) printURL(ev *slack.MessageEvent) {
 
 func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet string) {
 
+	b.Config.Log.Info(whichJanet)
+
 	match := regexps.GivePoints.FindStringSubmatch(ev.Text)
+	if len(match) == 0 {
+		match = regexps.TakePoints.FindStringSubmatch(ev.Text)
+	}
 	if len(match) == 0 {
 		return
 	}
@@ -375,6 +380,8 @@ func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet string) {
 	if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
 		return
 	}
+
+	b.Config.Log.Info("points applied")
 
 	b.SendMessage(pointsMsg, ev.Channel, ev.ThreadTimestamp, whichJanet)
 }
