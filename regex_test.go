@@ -1,4 +1,4 @@
-package karmabot
+package janet
 
 import (
 	"regexp"
@@ -78,13 +78,13 @@ var regexTests = map[regexPattern]regexTestSuite{
 	}: regexTestSuite{
 		true: []string{
 			"karma highscores",
-			"karmabot top 10",
-			"karmabot top 1001",
-			"karmabot top ",
+			"janet top 10",
+			"janet top 1001",
+			"janet top ",
 		},
 		false: []string{
-			"karmabot top 913f",
-			"karmabot karma highscores",
+			"janet top 913f",
+			"janet karma highscores",
 		},
 	},
 	regexPattern{
@@ -105,27 +105,27 @@ var regexTests = map[regexPattern]regexTestSuite{
 	},
 	regexPattern{
 		Regex: regexps.URL,
-		Name:  "karmabot web ui",
+		Name:  "janet web ui",
 	}: regexTestSuite{
 		true: []string{
-			"karmabot web",
+			"janet web",
 			"karma link",
-			"karmabot link",
+			"janet link",
 		},
 		false: []string{
-			"karmabot web 194",
+			"janet web 194",
 		},
 	},
 	regexPattern{
 		Regex: regexps.Throwback,
-		Name:  "karmabot throwback",
+		Name:  "janet throwback",
 	}: regexTestSuite{
 		true: []string{
-			"karmabot throwback <@U3494519>",
-			"karmabot throwback <@B34839>",
-			"karmabot throwback @name",
-			"karmabot throwback user",
-			"karmabot throwback",
+			"janet throwback <@U3494519>",
+			"janet throwback <@B34839>",
+			"janet throwback @name",
+			"janet throwback user",
+			"janet throwback",
 		},
 	},
 }

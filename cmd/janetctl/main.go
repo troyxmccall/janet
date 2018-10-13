@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/kamaln7/karmabot"
-	"github.com/kamaln7/karmabot/ctlcommands"
+	"github.com/troyxmccall/janet"
+	"github.com/troyxmccall/janet/ctlcommands"
 
 	"github.com/aybabtme/log"
 	"github.com/urfave/cli"
@@ -17,7 +17,7 @@ var (
 func main() {
 	// logging
 
-	ll = log.KV("version", karmabot.Version)
+	ll = log.KV("version", janet.Version)
 
 	// commands
 
@@ -27,9 +27,9 @@ func main() {
 
 	// app
 	app := cli.NewApp()
-	app.Name = "karmabotctl"
-	app.Version = karmabot.Version
-	app.Usage = "manually manage karmabot"
+	app.Name = "janetctl"
+	app.Version = janet.Version
+	app.Usage = "manually manage janet"
 
 	// general flags
 

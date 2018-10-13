@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/kamaln7/karmabot/ui/webui/auth"
+	"github.com/troyxmccall/janet/ui/webui/auth"
 )
 
 // A UI is the part of the web UI that handles

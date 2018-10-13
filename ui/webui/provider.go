@@ -3,8 +3,8 @@ package webui
 import (
 	"fmt"
 
-	"github.com/kamaln7/karmabot/database"
-	"github.com/kamaln7/karmabot/ui"
+	"github.com/troyxmccall/janet/database"
+	"github.com/troyxmccall/janet/ui"
 
 	"github.com/aybabtme/log"
 	"github.com/pquerna/otp/totp"
@@ -21,7 +21,7 @@ type Config struct {
 }
 
 // A Provider provides a UI service that can be
-// attached to karmabot.
+// attached to janet.
 type Provider struct {
 	Config *Config
 	ui     *UI
@@ -40,7 +40,7 @@ func New(config *Config) (*Provider, error) {
 
 	if config.TOTP == "" {
 		key, err := totp.Generate(totp.GenerateOpts{
-			Issuer:      "karmabot",
+			Issuer:      "janet",
 			AccountName: "slack",
 		})
 

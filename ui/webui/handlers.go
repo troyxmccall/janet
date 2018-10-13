@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/kamaln7/karmabot/database"
+	"github.com/troyxmccall/janet/database"
 
 	"github.com/gorilla/mux"
 )

@@ -1,11 +1,11 @@
 package blankui
 
 import (
-	"github.com/kamaln7/karmabot/ui"
+	"github.com/troyxmccall/janet/ui"
 )
 
 // A Provider provides a UI service that can be
-// attached to karmabot.
+// attached to janet.
 type Provider struct{}
 
 // ensure that Provider implements the ui.Provider interface

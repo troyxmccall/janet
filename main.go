@@ -1,4 +1,4 @@
-package karmabot
+package janet
 
 import (
 	"fmt"
@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kamaln7/karmabot/database"
-	"github.com/kamaln7/karmabot/munge"
-	"github.com/kamaln7/karmabot/ui"
+	"github.com/troyxmccall/janet/database"
+	"github.com/troyxmccall/janet/munge"
+	"github.com/troyxmccall/janet/ui"
 
 	"github.com/aybabtme/log"
 	"github.com/dustin/go-humanize"
@@ -85,7 +85,7 @@ type ReactjiConfig struct {
 	Upvote, Downvote StringList
 }
 
-// Config contains all the necessary configs for karmabot.
+// Config contains all the necessary configs for janet.
 type Config struct {
 	Slack                       ChatService
 	Debug, Motivate, SelfKarma  bool
@@ -98,12 +98,12 @@ type Config struct {
 	Reactji                     *ReactjiConfig
 }
 
-// A Bot is an instance of karmabot.
+// A Bot is an instance of janet.
 type Bot struct {
 	Config *Config
 }
 
-// New returns a pointer to an new instance of karmabot.
+// New returns a pointer to an new instance of janet.
 func New(config *Config) *Bot {
 	return &Bot{
 		Config: config,
@@ -255,7 +255,7 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 		return
 	}
 
-	// convert motivates into karmabot syntax
+	// convert motivates into janet syntax
 	if b.Config.Motivate {
 		if match := regexps.Motivate.FindStringSubmatch(ev.Text); len(match) > 0 {
 			ev.Text = match[1] + "++ for doing good work"

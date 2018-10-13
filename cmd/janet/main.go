@@ -4,14 +4,14 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/kamaln7/karmabot"
-	"github.com/kamaln7/karmabot/database"
-	karmabotui "github.com/kamaln7/karmabot/ui"
-	"github.com/kamaln7/karmabot/ui/blankui"
-	"github.com/kamaln7/karmabot/ui/webui"
+	"github.com/troyxmccall/janet"
+	"github.com/troyxmccall/janet/database"
+	janetui "github.com/troyxmccall/janet/ui"
+	"github.com/troyxmccall/janet/ui/blankui"
+	"github.com/troyxmccall/janet/ui/webui"
 
 	"github.com/aybabtme/log"
-	"github.com/kamaln7/envy"
+	"github.com/troyxmccall/envy"
 	"github.com/nlopes/slack"
 )
 
@@ -27,18 +27,18 @@ var (
 	webuilistenaddr  = flag.String("webui.listenaddr", "", "address to listen and serve the web ui on")
 	webuiurl         = flag.String("webui.url", "", "url address for accessing the web ui")
 	motivate         = flag.Bool("motivate", true, "toggle motivate.im support")
-	blacklist        = make(karmabot.StringList, 0)
+	blacklist        = make(janet.StringList, 0)
 	reactji          = flag.Bool("reactji", true, "use reactji as karma operations")
-	upvotereactji    = make(karmabot.StringList, 0)
-	downvotereactji  = make(karmabot.StringList, 0)
-	aliases          = make(karmabot.StringList, 0)
+	upvotereactji    = make(janet.StringList, 0)
+	downvotereactji  = make(janet.StringList, 0)
+	aliases          = make(janet.StringList, 0)
 	selfkarma        = flag.Bool("selfkarma", true, "allow users to add/remove karma to themselves")
 )
 
 func main() {
 	// logging
 
-	ll := log.KV("version", karmabot.Version)
+	ll := log.KV("version", janet.Version)
 
 	// cli flags
 
@@ -52,7 +52,7 @@ func main() {
 
 	// startup
 
-	ll.Info("starting karmabot")
+	ll.Info("starting janet")
 
 	// reactjis
 
@@ -66,14 +66,14 @@ func main() {
 		downvotereactji.Set("-1")
 		downvotereactji.Set("thumbsdown")
 	}
-	reactjiConfig := &karmabot.ReactjiConfig{
+	reactjiConfig := &janet.ReactjiConfig{
 		Enabled:  *reactji,
 		Upvote:   upvotereactji,
 		Downvote: downvotereactji,
 	}
 
 	// format aliases
-	aliasMap := make(karmabot.UserAliases, 0)
+	aliasMap := make(janet.UserAliases, 0)
 	for k := range aliases {
 		users := strings.Split(k, "++")
 		if len(users) <= 1 {
@@ -99,7 +99,7 @@ func main() {
 	// slack
 
 	if *token == "" {
-		ll.Fatal("please pass the slack RTM token (see `karmabot -h` for help)")
+		ll.Fatal("please pass the slack RTM token (see `janet -h` for help)")
 	}
 
 	//TODO: figure out a way to fix this
@@ -110,9 +110,9 @@ func main() {
 	sc.SetDebug(*debug)
 	go sc.ManageConnection()
 
-	// karmabot
+	// janet
 
-	var ui karmabotui.Provider
+	var ui janetui.Provider
 	if *webuipath != "" && *webuilistenaddr != "" {
 		ui, err = webui.New(&webui.Config{
 			ListenAddr:       *webuilistenaddr,
@@ -133,8 +133,8 @@ func main() {
 	}
 	go ui.Listen()
 
-	bot := karmabot.New(&karmabot.Config{
-		Slack:            &karmabot.SlackChatService{*sc},
+	bot := janet.New(&janet.Config{
+		Slack:            &janet.SlackChatService{*sc},
 		UI:               ui,
 		Debug:            *debug,
 		MaxPoints:        *maxpoints,

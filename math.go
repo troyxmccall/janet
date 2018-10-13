@@ -1,4 +1,4 @@
-package karmabot
+package janet
 
 func min(a, b int) int {
 	if a < b {

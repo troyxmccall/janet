@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kamaln7/karmabot/database"
-	"github.com/kamaln7/karmabot/ui/webui"
+	"github.com/troyxmccall/janet/database"
+	"github.com/troyxmccall/janet/ui/webui"
 
 	"github.com/aybabtme/log"
 	"github.com/pquerna/otp/totp"
@@ -117,14 +117,14 @@ func (cc *Commands) MigrateKarma(c *cli.Context) error {
 	records := []*database.Points{
 		// remove points from `from`
 		{
-			From:   "karmabot",
+			From:   "janet",
 			To:     from,
 			Reason: reason,
 			Points: -user.Points,
 		},
 		// add points to `to`
 		{
-			From:   "karmabot",
+			From:   "janet",
 			To:     to,
 			Reason: reason,
 			Points: user.Points,
@@ -159,10 +159,10 @@ func (cc *Commands) ResetKarma(c *cli.Context) error {
 	}
 
 	err = db.InsertPoints(&database.Points{
-		From:   "karmabot",
+		From:   "janet",
 		To:     name,
 		Points: -1 * user.Points,
-		Reason: "karmabotctl resetting karma",
+		Reason: "janetctl resetting karma",
 	})
 
 	if err != nil {
@@ -191,10 +191,10 @@ func (cc *Commands) SetKarma(c *cli.Context) error {
 	}
 
 	err = db.InsertPoints(&database.Points{
-		From:   "karmabot",
+		From:   "janet",
 		To:     name,
 		Points: points - user.Points,
-		Reason: "karmabotctl overriding karma",
+		Reason: "janetctl overriding karma",
 	})
 
 	if err != nil {

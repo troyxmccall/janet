@@ -1,10 +1,10 @@
-package karmabot
+package janet
 
 import (
 	"testing"
 	"time"
 
-	"github.com/kamaln7/karmabot/database"
+	"github.com/troyxmccall/janet/database"
 	"github.com/nlopes/slack"
 )
 
@@ -162,7 +162,7 @@ func TestHandleSlackEvent(t *testing.T) {
 			MessageEvent: &slack.MessageEvent{
 				Msg: slack.Msg{
 					Type:    "message",
-					Text:    "karmabot throwback",
+					Text:    "janet throwback",
 					Channel: "user",
 					User:    "onehundred_points",
 				},

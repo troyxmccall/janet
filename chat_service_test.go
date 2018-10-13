@@ -1,4 +1,4 @@
-package karmabot
+package janet
 
 import "github.com/nlopes/slack"
 

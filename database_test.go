@@ -1,10 +1,10 @@
-package karmabot
+package janet
 
 import (
 	"sort"
 	"time"
 
-	"github.com/kamaln7/karmabot/database"
+	"github.com/troyxmccall/janet/database"
 )
 
 type TestDatabase struct {

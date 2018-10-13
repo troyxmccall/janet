@@ -1,6 +1,6 @@
 ![karmabot logo](/logo.png)  
 
-[![Build Status](https://semaphoreci.com/api/v1/kamaln7/karmabot/branches/master/badge.svg)](https://semaphoreci.com/kamaln7/karmabot)
+[![Build Status](https://semaphoreci.com/api/v1/troyxmccall/karmabot/branches/master/badge.svg)](https://semaphoreci.com/troyxmccall/karmabot)
 
 karmabot is a Slack bot that listens for and performs karma operations (aka upvotes/downvotes).
 
@@ -44,18 +44,18 @@ karmabot is a Slack bot that listens for and performs karma operations (aka upvo
 
 ### Use the Docker images
 
-* `kamaln7/karmabot:latest`
-* `kamaln7/karmabot:latest-webui`
-* `kamaln7/karmabotctl:latest`
+* `troyxmccall/karmabot:latest`
+* `troyxmccall/karmabot:latest-webui`
+* `troyxmccall/karmabotctl:latest`
 
 ### Download a Pre-built Release
 
-1. head to [the repo's releases page](https://github.com/kamaln7/karmabot/releases) and download the appropriate latest release's binary for your system
+1. head to [the repo's releases page](https://github.com/troyxmccall/karmabot/releases) and download the appropriate latest release's binary for your system
 
 ### Build from Source
 
-1. clone the repo (find the latest version number in [the releases page](https://github.com/kamaln7/karmabot/releases)):
-    1. `git clone -b v1.5.2 https://github.com/kamaln7/karmabot.git`
+1. clone the repo (find the latest version number in [the releases page](https://github.com/troyxmccall/karmabot/releases)):
+    1. `git clone -b v1.5.2 https://github.com/troyxmccall/karmabot.git`
     2. `cd karmabot`
 2. install dependencies
     1. [install dep](https://golang.github.io/dep/docs/installation.html)

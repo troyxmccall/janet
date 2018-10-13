@@ -38,7 +38,7 @@
   version = "1.6.2"
 
 [[constraint]]
-  name = "github.com/kamaln7/envy"
+  name = "github.com/troyxmccall/envy"
   version = "1.0.0"
 
 [[constraint]]

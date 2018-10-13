@@ -19,7 +19,7 @@ type Config struct {
 	Log  *log.Log
 }
 
-// A DB in an instance of a karmabot database.
+// A DB in an instance of a janet database.
 type DB struct {
 	Config *Config
 	SQL    *sql.DB
@@ -52,7 +52,7 @@ type User struct {
 // is performed on a non-existent user
 var ErrNoSuchUser = errors.New("no such user")
 
-// New returns a new instance of a karmabot database
+// New returns a new instance of a janet database
 // and initializes it
 func New(config *Config) (*DB, error) {
 	instance := &DB{
@@ -69,7 +69,7 @@ func New(config *Config) (*DB, error) {
 }
 
 // Init initializes an sqlite3 database in order
-// for karmabot to be able to use it
+// for janet to be able to use it
 func (db *DB) Init() error {
 	sqlite, err := sql.Open("sqlite3", db.Config.Path)
 

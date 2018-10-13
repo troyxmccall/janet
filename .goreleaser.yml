@@ -1,13 +1,13 @@
 builds:
-  - binary: karmabot
-    main: ./cmd/karmabot/main.go
+  - binary: janet
+    main: ./cmd/janet/main.go
     ldflags: -s -extldflags "-static"
     goos:
       - linux
     goarch:
       - amd64
-  - binary: karmabotctl
-    main: ./cmd/karmabotctl/main.go
+  - binary: janetctl
+    main: ./cmd/janetctl/main.go
     ldflags: -s -extldflags "-static"
     goos:
       - linux
@@ -18,23 +18,23 @@ snapshot:
 git:
   short_hash: true
 dockers:
-  - image: kamaln7/karmabot
-    binary: karmabot
-    dockerfile: ./cmd/karmabot/Dockerfile-goreleaser
+  - image: troyxmccall/janet
+    binary: janet
+    dockerfile: ./cmd/janet/Dockerfile-goreleaser
     tag_templates:
       - "{{ .Version }}"
       - latest
-  - image: kamaln7/karmabot
-    binary: karmabot
-    dockerfile: ./cmd/karmabot/Dockerfile-webui-goreleaser
+  - image: troyxmccall/janet
+    binary: janet
+    dockerfile: ./cmd/janet/Dockerfile-webui-goreleaser
     tag_templates:
       - "{{ .Version }}-webui"
       - latest-webui
     extra_files:
       - www
-  - image: kamaln7/karmabotctl
-    binary: karmabotctl
-    dockerfile: ./cmd/karmabotctl/Dockerfile-goreleaser
+  - image: troyxmccall/janetctl
+    binary: janetctl
+    dockerfile: ./cmd/janetctl/Dockerfile-goreleaser
     tag_templates:
       - "{{ .Version }}"
       - latest

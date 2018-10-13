@@ -79,7 +79,7 @@
 
 [[projects]]
   digest = "1:e0fda8cfabc9d21a5402d2575bb97470a4bf2f21c88e8c43ef7e37fdad36ae0c"
-  name = "github.com/kamaln7/envy"
+  name = "github.com/troyxmccall/envy"
   packages = ["."]
   pruneopts = "UT"
   revision = "29534b92be2db456812867a50ecfe52198c5a8dd"
@@ -144,7 +144,7 @@
     "github.com/aybabtme/log",
     "github.com/dustin/go-humanize",
     "github.com/gorilla/mux",
-    "github.com/kamaln7/envy",
+    "github.com/troyxmccall/envy",
     "github.com/mattn/go-sqlite3",
     "github.com/nlopes/slack",
     "github.com/pquerna/otp/totp",
