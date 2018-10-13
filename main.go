@@ -299,7 +299,7 @@ func (b *Bot) printURL(ev *slack.MessageEvent) {
 	b.SendMessage(url, ev.Channel, ev.ThreadTimestamp)
 }
 
-func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet) {
+func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet string) {
 
 	match := regexps.GivePoints.FindStringSubmatch(ev.Text)
 	if len(match) == 0 {
