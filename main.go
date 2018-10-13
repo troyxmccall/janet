@@ -17,15 +17,16 @@ import (
 
 var (
 	regexps = struct {
-		Motivate, GiveKarma, QueryKarma, Leaderboard, URL, SlackUser, Throwback *regexp.Regexp
+		Motivate, GivePoints, TakePoints, QueryPoints, Leaderboard, URL, SlackUser, Throwback *regexp.Regexp
 	}{
-		Motivate:    karmaReg.GetMotivate(),
-		GiveKarma:   karmaReg.GetGive(),
-		QueryKarma:  karmaReg.GetQuery(),
-		Leaderboard: regexp.MustCompile(`^karma(?:bot)? (?:leaderboard|top|highscores) ?([0-9]+)?$`),
-		URL:         regexp.MustCompile(`^karma(?:bot)? (?:url|web|link)?$`),
+		Motivate:    karmaReg.MatchMotivate(),
+		GivePoints:   karmaReg.MatchGive(),
+		TakePoints:   karmaReg.MatchTake(),
+		QueryPoints:  karmaReg.MatchQuery(),
+		Leaderboard: regexp.MustCompile(`^good|janet(?:place)? (?:leaderboard|top|highscores) ?([0-9]+)?$`),
+		URL:         regexp.MustCompile(`^janet(?:bot)? (?:url|web|link)?$`),
 		SlackUser:   regexp.MustCompile(`^<@([A-Za-z0-9]+)>$`),
-		Throwback:   karmaReg.GetThrowback(),
+		Throwback:   karmaReg.MatchThrowback(),
 	}
 )
 
@@ -88,7 +89,7 @@ type ReactjiConfig struct {
 // Config contains all the necessary configs for janet.
 type Config struct {
 	Slack                       ChatService
-	Debug, Motivate, SelfKarma  bool
+	Debug, Motivate, SelfPoints  bool
 	MaxPoints, LeaderboardLimit int
 	Log                         *log.Log
 	UI                          ui.Provider
@@ -138,7 +139,7 @@ func (b *Bot) Listen() {
 }
 
 // SendMessage sends a message to a Slack channel.
-func (b *Bot) SendMessage(message, channel, thread string) {
+func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 	msg := b.Config.Slack.NewOutgoingMessage(message, channel)
 	msg.ThreadTimestamp = thread
 	b.Config.Slack.SendMessage(msg)
@@ -266,8 +267,12 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 	case regexps.URL.MatchString(ev.Text):
 		b.printURL(ev)
 
-	case regexps.GiveKarma.MatchString(ev.Text):
-		b.givePoints(ev)
+	case regexps.GivePoints.MatchString(ev.Text):
+		b.applyPoints(ev, "")
+
+	case regexps.TakePoints.MatchString(ev.Text):
+		whichJanet := "badJanet"
+		b.applyPoints(ev, whichJanet)
 
 	case regexps.Leaderboard.MatchString(ev.Text):
 		b.printLeaderboard(ev)
@@ -275,8 +280,8 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 	case regexps.Throwback.MatchString(ev.Text):
 		b.getThrowback(ev)
 
-	case regexps.QueryKarma.MatchString(ev.Text):
-		b.queryKarma(ev)
+	case regexps.QueryPoints.MatchString(ev.Text):
+		b.queryPoints(ev)
 	}
 }
 
@@ -294,8 +299,9 @@ func (b *Bot) printURL(ev *slack.MessageEvent) {
 	b.SendMessage(url, ev.Channel, ev.ThreadTimestamp)
 }
 
-func (b *Bot) givePoints(ev *slack.MessageEvent) {
-	match := regexps.GiveKarma.FindStringSubmatch(ev.Text)
+func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet) {
+
+	match := regexps.GivePoints.FindStringSubmatch(ev.Text)
 	if len(match) == 0 {
 		return
 	}
@@ -330,8 +336,8 @@ func (b *Bot) givePoints(ev *slack.MessageEvent) {
 	}
 	reason := match[3]
 
-	if !b.Config.SelfKarma && from == to {
-		b.SendMessage("Sorry, you are not allowed to do that.", ev.Channel, ev.ThreadTimestamp)
+	if !b.Config.SelfPoints && from == to {
+		b.SendMessage("Sorry, you are not allowed to do that.", ev.Channel, ev.ThreadTimestamp, whichJanet)
 		return
 	}
 
@@ -352,7 +358,7 @@ func (b *Bot) givePoints(ev *slack.MessageEvent) {
 		return
 	}
 
-	b.SendMessage(pointsMsg, ev.Channel, ev.ThreadTimestamp)
+	b.SendMessage(pointsMsg, ev.Channel, ev.ThreadTimestamp, whichJanet)
 }
 
 func (b *Bot) getThrowback(ev *slack.MessageEvent) {
@@ -380,7 +386,7 @@ func (b *Bot) getThrowback(ev *slack.MessageEvent) {
 
 	throwback, err := b.Config.DB.GetThrowback(user)
 	if err == database.ErrNoSuchUser {
-		b.SendMessage(fmt.Sprintf("could not find any karma operations for %s", user), ev.Channel, ev.ThreadTimestamp)
+		b.SendMessage(fmt.Sprintf("could not find any karma operations for %s", user), ev.Channel, ev.ThreadTimestamp, "")
 		return
 	}
 
@@ -394,7 +400,7 @@ func (b *Bot) getThrowback(ev *slack.MessageEvent) {
 	}
 	text := fmt.Sprintf("%s received %d points from %s %s%s", munge.Munge(throwback.To), throwback.Points.Points, munge.Munge(throwback.From), date, throwback.Reason)
 
-	b.SendMessage(text, ev.Channel, ev.ThreadTimestamp)
+	b.SendMessage(text, ev.Channel, ev.ThreadTimestamp, "")
 }
 
 func (b *Bot) getUserPointsMessage(name, reason string, points int) (string, error) {
@@ -481,8 +487,8 @@ func (b *Bot) getUserNameByID(id string) (string, error) {
 	return userInfo.Name, nil
 }
 
-func (b *Bot) queryKarma(ev *slack.MessageEvent) {
-	match := regexps.QueryKarma.FindStringSubmatch(ev.Text)
+func (b *Bot) queryPoints(ev *slack.MessageEvent) {
+	match := regexps.QueryPoints.FindStringSubmatch(ev.Text)
 	if len(match) == 0 {
 		return
 	}

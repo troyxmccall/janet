@@ -17,7 +17,8 @@ import (
 
 // cli flags
 var (
-	token            = flag.String("token", "", "slack RTM token")
+	token            = flag.String("token", "", "slack RTM token for Good Janet")
+	badJanetToken    = flag.String("badJanetToken", "", "slack RTM token for Bad Janet")
 	dbpath           = flag.String("db", "./db.sqlite3", "path to sqlite database")
 	maxpoints        = flag.Int("maxpoints", 6, "the maximum amount of points that users can give/take at once")
 	leaderboardlimit = flag.Int("leaderboardlimit", 10, "the default amount of users to list in the leaderboard")
@@ -110,6 +111,11 @@ func main() {
 	sc.SetDebug(*debug)
 	go sc.ManageConnection()
 
+	badJanetSc := slack.New(*badJanetToken).NewRTM()
+	badJanetCc.SetDebug(*debug)
+	go badJanetSc.ManageConnection()
+
+
 	// janet
 
 	var ui janetui.Provider
@@ -135,6 +141,7 @@ func main() {
 
 	bot := janet.New(&janet.Config{
 		Slack:            &janet.SlackChatService{*sc},
+		BadJanetSlack:    &janet.SlackChatService{*badJanetSc},
 		UI:               ui,
 		Debug:            *debug,
 		MaxPoints:        *maxpoints,
@@ -145,7 +152,7 @@ func main() {
 		Reactji:          reactjiConfig,
 		Motivate:         *motivate,
 		Aliases:          aliasMap,
-		SelfKarma:        *selfkarma,
+		SelfPoints:        *selfkarma,
 	})
 
 	bot.Listen()

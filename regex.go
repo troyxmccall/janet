@@ -7,18 +7,19 @@ import (
 )
 
 type karmaRegex struct {
-	user, autocomplete, explicitAutocomplete, points, reason string
+	user, autocomplete, explicitAutocomplete, goodPoints, badPoints, reason string
 }
 
 var karmaReg = &karmaRegex{
 	user:                 `@??((?:<@)??\w[A-Za-z0-9_\-@<>]*?)`,
 	autocomplete:         `:?? ??`,
 	explicitAutocomplete: `(?:: )??`,
-	points:               `([\+]{2,}|[\-]{2,})`,
+	goodPoints:           `([\+]{2,})`,
+	badPoints:            `([\-]{2,})`,
 	reason:               `(?:(?: for)? +(.*))?`,
 }
 
-func (r *karmaRegex) GetGive() *regexp.Regexp {
+func (r *karmaRegex) MatchGive() *regexp.Regexp {
 	expression := fmt.Sprintf(
 		"(?:%s)|(?:%s)",
 		strings.Join(
@@ -26,7 +27,7 @@ func (r *karmaRegex) GetGive() *regexp.Regexp {
 				"^",
 				r.user,
 				r.autocomplete,
-				r.points,
+				r.goodPoints,
 				r.reason,
 				"$",
 			},
@@ -37,7 +38,7 @@ func (r *karmaRegex) GetGive() *regexp.Regexp {
 				`\s+`,
 				r.user,
 				r.explicitAutocomplete,
-				r.points,
+				r.goodPoints,
 				r.reason,
 				"$",
 			},
@@ -48,7 +49,37 @@ func (r *karmaRegex) GetGive() *regexp.Regexp {
 	return regexp.MustCompile(expression)
 }
 
-func (r *karmaRegex) GetMotivate() *regexp.Regexp {
+func (r *karmaRegex) MatchTake() *regexp.Regexp {
+	expression := fmt.Sprintf(
+		"(?:%s)|(?:%s)",
+		strings.Join(
+			[]string{
+				"^",
+				r.user,
+				r.autocomplete,
+				r.badPoints,
+				r.reason,
+				"$",
+			},
+			"",
+		),
+		strings.Join(
+			[]string{
+				`\s+`,
+				r.user,
+				r.explicitAutocomplete,
+				r.badPoints,
+				r.reason,
+				"$",
+			},
+			"",
+		),
+	)
+
+	return regexp.MustCompile(expression)
+}
+
+func (r *karmaRegex) MatchMotivate() *regexp.Regexp {
 	expression := strings.Join(
 		[]string{
 			`^(?:\?|!)m +`,
@@ -62,7 +93,7 @@ func (r *karmaRegex) GetMotivate() *regexp.Regexp {
 	return regexp.MustCompile(expression)
 }
 
-func (r *karmaRegex) GetQuery() *regexp.Regexp {
+func (r *karmaRegex) MatchQuery() *regexp.Regexp {
 	expression := strings.Join(
 		[]string{
 			`^`,
@@ -77,7 +108,7 @@ func (r *karmaRegex) GetQuery() *regexp.Regexp {
 	return regexp.MustCompile(expression)
 }
 
-func (r *karmaRegex) GetThrowback() *regexp.Regexp {
+func (r *karmaRegex) MatchThrowback() *regexp.Regexp {
 	expression := strings.Join(
 		[]string{
 			`^karma(?:bot)? (?:throwback) ?(`,

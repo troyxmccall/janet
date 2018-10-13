@@ -113,7 +113,7 @@ func main() {
 					Name: "points",
 				},
 			},
-			Action: cc.AddKarma,
+			Action: cc.AddPoints,
 		},
 		{
 			Name:  "migrate",
@@ -130,7 +130,7 @@ func main() {
 					Name: "reason",
 				},
 			},
-			Action: cc.MigrateKarma,
+			Action: cc.MigratePoints,
 		},
 		{
 			Name:  "reset",
@@ -141,7 +141,7 @@ func main() {
 					Name: "user",
 				},
 			},
-			Action: cc.ResetKarma,
+			Action: cc.ResetPoints,
 		},
 		{
 			Name:  "set",
@@ -155,7 +155,7 @@ func main() {
 					Name: "points",
 				},
 			},
-			Action: cc.SetKarma,
+			Action: cc.SetPoints,
 		},
 		{
 			Name:  "throwback",

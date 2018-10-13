@@ -59,7 +59,7 @@ func (cc *Commands) Mktotp(c *cli.Context) error {
 	return nil
 }
 
-func (cc *Commands) AddKarma(c *cli.Context) error {
+func (cc *Commands) AddPoints(c *cli.Context) error {
 	var (
 		db     = cc.getDB(c.String("db"))
 		from   = c.String("from")
@@ -93,7 +93,7 @@ func (cc *Commands) AddKarma(c *cli.Context) error {
 	return nil
 }
 
-func (cc *Commands) MigrateKarma(c *cli.Context) error {
+func (cc *Commands) MigratePoints(c *cli.Context) error {
 	var (
 		db   = cc.getDB(c.String("db"))
 		from = c.String("from")
@@ -143,7 +143,7 @@ func (cc *Commands) MigrateKarma(c *cli.Context) error {
 	return nil
 }
 
-func (cc *Commands) ResetKarma(c *cli.Context) error {
+func (cc *Commands) ResetPoints(c *cli.Context) error {
 	var (
 		db   = cc.getDB(c.String("db"))
 		name = c.String("user")
@@ -174,7 +174,7 @@ func (cc *Commands) ResetKarma(c *cli.Context) error {
 	return nil
 }
 
-func (cc *Commands) SetKarma(c *cli.Context) error {
+func (cc *Commands) SetPoints(c *cli.Context) error {
 	var (
 		db     = cc.getDB(c.String("db"))
 		name   = c.String("user")
