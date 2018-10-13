@@ -112,7 +112,7 @@ func main() {
 	go sc.ManageConnection()
 
 	badJanetSc := slack.New(*badJanetToken).NewRTM()
-	badJanetCc.SetDebug(*debug)
+	badJanetSc.SetDebug(*debug)
 	go badJanetSc.ManageConnection()
 
 

@@ -89,6 +89,7 @@ type ReactjiConfig struct {
 // Config contains all the necessary configs for janet.
 type Config struct {
 	Slack                       ChatService
+	BadJanetSlack               ChatService
 	Debug, Motivate, SelfPoints  bool
 	MaxPoints, LeaderboardLimit int
 	Log                         *log.Log
@@ -153,7 +154,7 @@ func (b *Bot) DMUser(message, user string) {
 		return
 	}
 
-	b.SendMessage(message, channel, "")
+	b.SendMessage(message, channel, "","")
 }
 
 func (b *Bot) handleError(err error, channel, thread string) bool {
@@ -170,7 +171,7 @@ func (b *Bot) handleError(err error, channel, thread string) bool {
 			message = "an error has occurred."
 		}
 
-		b.SendMessage(message, channel, thread)
+		b.SendMessage(message, channel, thread, "badJanet")
 	}
 
 	return true
@@ -296,7 +297,7 @@ func (b *Bot) printURL(ev *slack.MessageEvent) {
 		return
 	}
 
-	b.SendMessage(url, ev.Channel, ev.ThreadTimestamp)
+	b.SendMessage(url, ev.Channel, ev.ThreadTimestamp, "")
 }
 
 func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet string) {
@@ -458,7 +459,7 @@ func (b *Bot) printLeaderboard(ev *slack.MessageEvent) {
 		text += fmt.Sprintf("%d. %s == %d\n", i+1, munge.Munge(user.Name), user.Points)
 	}
 
-	b.SendMessage(text, ev.Channel, ev.ThreadTimestamp)
+	b.SendMessage(text, ev.Channel, ev.ThreadTimestamp, "")
 }
 
 func (b *Bot) parseUser(user string) (string, error) {
@@ -503,9 +504,9 @@ func (b *Bot) queryPoints(ev *slack.MessageEvent) {
 	switch {
 	case err == database.ErrNoSuchUser:
 		// override debug mode
-		b.SendMessage(err.Error(), ev.Channel, ev.ThreadTimestamp)
+		b.SendMessage(err.Error(), ev.Channel, ev.ThreadTimestamp, "")
 	case b.handleError(err, ev.Channel, ev.ThreadTimestamp):
 	default:
-		b.SendMessage(fmt.Sprintf("%s == %d", user.Name, user.Points), ev.Channel, ev.ThreadTimestamp)
+		b.SendMessage(fmt.Sprintf("%s == %d", user.Name, user.Points), ev.Channel, ev.ThreadTimestamp, "")
 	}
 }
