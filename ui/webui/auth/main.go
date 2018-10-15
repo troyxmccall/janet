@@ -75,7 +75,7 @@ func (a *Authenticator) Authenticate(w http.ResponseWriter, r *http.Request) (bo
 	if !authed && a.hasValidToken(r) {
 		cookie = &http.Cookie{
 			Name:  "session",
-			Value: uuid.Must(uuid.NewV4()).String(),
+			Value: uuid.Must(uuid.NewV4(), err).String(),
 			Path:  "/",
 		}
 
