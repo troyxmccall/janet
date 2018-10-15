@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"quotes"
 
 	"github.com/troyxmccall/janet/database"
 	"github.com/troyxmccall/janet/munge"
@@ -104,6 +103,14 @@ type Config struct {
 // A Bot is an instance of janet.
 type Bot struct {
 	Config *Config
+}
+
+
+type Quotes struct {
+	badJanetQuote String
+	goodJanetQuote String
+	appendQuoteToMessage bool
+
 }
 
 // New returns a pointer to an new instance of janet.

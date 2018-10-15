@@ -1,6 +1,6 @@
 package janet
 
-func badJanetQuotes () {
+func badJanetQuote () {
 
     quotes := []string{
         "https://66.media.tumblr.com/02118197693f204d5a7e95b92075cd83/tumblr_og4ljpvuMl1u4ypbyo1_500.gif",
@@ -23,7 +23,7 @@ func badJanetQuotes () {
 }
 
 
-func goodJanetQuotes () {
+func goodJanetQuote () {
 
     quotes := []string{
         "https://giphy.com/gifs/thegoodplace-episode-7-nbc-3oxHQwW2OulGir0Vry",
@@ -46,6 +46,6 @@ func goodJanetQuotes () {
 }
 
 
-func addQuote() bool {
+func appendQuoteToMessage() bool {
     return rand.Float32() < 0.5
 }
