@@ -119,8 +119,6 @@ func (b *Bot) Listen() {
 		switch ev := msg.Data.(type) {
 		case *slack.ReactionAddedEvent:
 			go b.handleReactionAddedEvent(msg.Data.(*slack.ReactionAddedEvent))
-		case *slack.ReactionRemovedEvent:
-			go b.handleReactionRemovedEvent(msg.Data.(*slack.ReactionRemovedEvent))
 		case *slack.MessageEvent:
 			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
 		case *slack.ConnectedEvent:
@@ -136,6 +134,27 @@ func (b *Bot) Listen() {
 			b.Config.Log.Fatal("invalid slack token")
 		default:
 		}
+	}
+
+	for msg := range b.Config.BadJanetSlack.IncomingEventsChan() {
+		switch ev := msg.Data.(type) {
+		case *slack.ReactionRemovedEvent:
+			go b.handleReactionRemovedEvent(msg.Data.(*slack.ReactionRemovedEvent))
+		case *slack.MessageEvent:
+			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
+		case *slack.ConnectedEvent:
+			b.Config.Log.Info("bad-janet connected to slack")
+			if b.Config.Debug {
+				b.Config.Log.KV("info", ev.Info).Info("got bad-janet slack info")
+				b.Config.Log.KV("connections", ev.ConnectionCount).Info("got bad-janet connection count")
+			}
+		case *slack.RTMError:
+			b.Config.Log.Err(ev).Error("bad-janet slack rtm error")
+		case *slack.InvalidAuthEvent:
+			b.Config.Log.Fatal("bad-janet invalid slack token")
+		default:
+		}
+
 	}
 }
 
