@@ -53,7 +53,7 @@ func main() {
 
 	// startup
 
-	ll.Info("starting janet")
+	ll.Info("starting both janets")
 
 	// reactjis
 
@@ -101,6 +101,10 @@ func main() {
 
 	if *token == "" {
 		ll.Fatal("please pass the slack RTM token (see `janet -h` for help)")
+	}
+
+	if *badJanetToken == "" {
+		ll.Fatal("please pass a slack RTM token for badJanet (see `janet -h` for help)")
 	}
 
 	//TODO: figure out a way to fix this
@@ -156,4 +160,6 @@ func main() {
 	})
 
 	bot.Listen()
+
+	bot.BadJanetListen()
 }

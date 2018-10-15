@@ -23,7 +23,7 @@ var (
 		GivePoints:   karmaReg.MatchGive(),
 		TakePoints:   karmaReg.MatchTake(),
 		QueryPoints:  karmaReg.MatchQuery(),
-		Leaderboard: regexp.MustCompile(`^good|janet(?:place)? (?:leaderboard|top|highscores) ?([0-9]+)?$`),
+		Leaderboard: regexp.MustCompile(`^goodplace(?)? (?:leaderboard|top|highscores) ?([0-9]+)?$`),
 		URL:         regexp.MustCompile(`^janet(?:bot)? (?:url|web|link)?$`),
 		SlackUser:   regexp.MustCompile(`^<@([A-Za-z0-9]+)>$`),
 		Throwback:   karmaReg.MatchThrowback(),
@@ -137,11 +137,14 @@ func (b *Bot) Listen() {
 		default:
 		}
 	}
+}
 
-	for msg := range b.Config.BadJanetSlack.IncomingEventsChan() {
-		switch ev := msg.Data.(type) {
+func (b *Bot) BadJanetListen() {
+	for badJanetMsg := range b.Config.BadJanetSlack.IncomingEventsChan() {
+		switch ev := badJanetMsg.Data.(type) {
 		case *slack.MessageEvent:
-			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
+			b.Config.Log.Info("bad-janet got a message")
+			go b.handleMessageEvent(badJanetMsg.Data.(*slack.MessageEvent))
 		case *slack.ConnectedEvent:
 			b.Config.Log.Info("bad-janet connected to slack")
 			if b.Config.Debug {
@@ -154,7 +157,6 @@ func (b *Bot) Listen() {
 			b.Config.Log.Fatal("bad-janet invalid slack token")
 		default:
 		}
-
 	}
 }
 
