@@ -1,6 +1,7 @@
 package janet
+import "math/rand"
 
-func badJanetQuote () {
+func badJanetQuote () (string) {
 
     quotes := []string{
         "https://66.media.tumblr.com/02118197693f204d5a7e95b92075cd83/tumblr_og4ljpvuMl1u4ypbyo1_500.gif",
@@ -14,7 +15,7 @@ func badJanetQuote () {
         "https://media.giphy.com/media/xUOxffzaOMBG2r22Yg/giphy.gif",
         "https://media1.tenor.com/images/06a5bd44234bfd672ae039f0c412d7a7/tenor.gif?itemid=10995354",
         "What up, ding-dongs? Yeah, so basically, um, the Fake Eleanor's a dirt bag, and these jabronis are gonna try and claim she's less of a dirt bag now, but she just stole your train, and she still sucks bad. And she belongs with us. Oh, also, check this out. [Farting] Nailed it.",
-        "What's up, fork nuts?"
+        "What's up, fork nuts?",
     }
 
     n := rand.Int() % len(quotes)
@@ -23,7 +24,7 @@ func badJanetQuote () {
 }
 
 
-func goodJanetQuote () {
+func goodJanetQuote () (string) {
 
     quotes := []string{
         "https://giphy.com/gifs/thegoodplace-episode-7-nbc-3oxHQwW2OulGir0Vry",

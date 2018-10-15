@@ -105,14 +105,6 @@ type Bot struct {
 	Config *Config
 }
 
-
-type Quotes struct {
-	badJanetQuote String
-	goodJanetQuote String
-	appendQuoteToMessage bool
-
-}
-
 // New returns a pointer to an new instance of janet.
 func New(config *Config) *Bot {
 	return &Bot{
@@ -157,10 +149,23 @@ func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 		msg := b.Config.BadJanetSlack.NewOutgoingMessage(message, channel)
 		msg.ThreadTimestamp = thread
 		b.Config.BadJanetSlack.SendMessage(msg)
+
+		appendMessage := appendQuoteToMessage()
+		if appendMessage {
+			msg := b.Config.BadJanetSlack.NewOutgoingMessage(badJanetQuote(), channel)
+			msg.ThreadTimestamp = thread
+			b.Config.BadJanetSlack.SendMessage(msg)
+		}
 	} else {
 		msg := b.Config.Slack.NewOutgoingMessage(message, channel)
 		msg.ThreadTimestamp = thread
 		b.Config.Slack.SendMessage(msg)
+		appendMessage := appendQuoteToMessage()
+		if appendMessage {
+			msg := b.Config.Slack.NewOutgoingMessage(goodJanetQuote(), channel)
+			msg.ThreadTimestamp = thread
+			b.Config.Slack.SendMessage(msg)
+		}
 	}
 }
 
@@ -282,11 +287,6 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 		}
 	}
 
-	b.Config.Log.Info("testing to see if these are bad points")
-	test := regexps.TakePoints.MatchString(ev.Text)
-
-	b.Config.Log.Info(strconv.FormatBool(test))
-
 	switch {
 	case regexps.URL.MatchString(ev.Text):
 		b.printURL(ev)
@@ -295,7 +295,6 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 		b.applyPoints(ev, "")
 
 	case regexps.TakePoints.MatchString(ev.Text):
-		b.Config.Log.Info("bad points - using bad janet")
 		whichJanet := "badJanet"
 		b.applyPoints(ev, whichJanet)
 
