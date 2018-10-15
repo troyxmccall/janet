@@ -111,13 +111,13 @@ func main() {
 	//our current logging library does not implement
 	//log.Logger
 	//slack.SetLogger(*ll)
-	sc := slack.New(*token).NewRTM()
-	sc.SetDebug(*debug)
-	go sc.ManageConnection()
+	slackConnection := slack.New(*token).NewRTM()
+	slackConnection.SetDebug(*debug)
+	go slackConnection.ManageConnection()
 
-	badJanetSc := slack.New(*badJanetToken).NewRTM()
-	badJanetSc.SetDebug(*debug)
-	go badJanetSc.ManageConnection()
+	badJanetSlackConnection := slack.New(*badJanetToken).NewRTM()
+	badJanetSlackConnection.SetDebug(*debug)
+	go badJanetSlackConnection.ManageConnection()
 
 
 	// janet
@@ -144,8 +144,8 @@ func main() {
 	go ui.Listen()
 
 	bot := janet.New(&janet.Config{
-		Slack:            &janet.SlackChatService{*sc},
-		BadJanetSlack:    &janet.SlackChatService{*badJanetSc},
+		Slack:            &janet.SlackChatService{*slackConnection},
+		BadJanetSlack:    &janet.SlackChatService{*badJanetSlackConnection},
 		UI:               ui,
 		Debug:            *debug,
 		MaxPoints:        *maxpoints,

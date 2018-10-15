@@ -115,6 +115,9 @@ func New(config *Config) *Bot {
 // Listen starts listening for Slack messages and calls the
 // appropriate handlers.
 func (b *Bot) Listen() {
+
+	b.Config.Log.Info("good-janet listener called")
+
 	for msg := range b.Config.Slack.IncomingEventsChan() {
 		switch ev := msg.Data.(type) {
 		case *slack.ReactionAddedEvent:
@@ -140,11 +143,14 @@ func (b *Bot) Listen() {
 }
 
 func (b *Bot) BadJanetListen() {
-	for badJanetMsg := range b.Config.BadJanetSlack.IncomingEventsChan() {
-		switch ev := badJanetMsg.Data.(type) {
+
+	b.Config.Log.Info("bad-janet listener called")
+
+	for msg := range b.Config.BadJanetSlack.IncomingEventsChan() {
+		switch ev := msg.Data.(type) {
 		case *slack.MessageEvent:
 			b.Config.Log.Info("bad-janet got a message")
-			go b.handleMessageEvent(badJanetMsg.Data.(*slack.MessageEvent))
+			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
 		case *slack.ConnectedEvent:
 			b.Config.Log.Info("bad-janet connected to slack")
 			if b.Config.Debug {
@@ -158,6 +164,8 @@ func (b *Bot) BadJanetListen() {
 		default:
 		}
 	}
+
+	
 }
 
 // SendMessage sends a message to a Slack channel.
