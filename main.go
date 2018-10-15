@@ -124,7 +124,7 @@ func (b *Bot) Listen() {
 		case *slack.MessageEvent:
 			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
 		case *slack.ConnectedEvent:
-			b.Config.Log.Info("connected to slack")
+			b.Config.Log.Info("janet connected to slack")
 
 			if b.Config.Debug {
 				b.Config.Log.KV("info", ev.Info).Info("got slack info")
@@ -170,14 +170,14 @@ func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 }
 
 // DMUser sends a message directly to a Slack user.
-func (b *Bot) DMUser(message, user string) {
+func (b *Bot) DMUser(message, user string, whichJanet string) {
 	_, _, channel, err := b.Config.Slack.OpenIMChannel(user)
 	if err != nil {
 		b.Config.Log.Err(err).KV("user", user).Error("could not open IM channel with user")
 		return
 	}
 
-	b.SendMessage(message, channel, "","")
+	b.SendMessage(message, channel, "",whichJanet)
 }
 
 func (b *Bot) handleError(err error, channel, thread string) bool {
@@ -272,7 +272,15 @@ func (b *Bot) handleReactionEvent(fromID, toID, reason string, points int) {
 		return
 	}
 
-	b.DMUser(pointsMsg, fromID)
+	whichJanet := ""
+
+	if points < 0 {
+		whichJanet = "badJanet"
+	} else {
+		whichJanet = "goodJanet"
+	}
+
+	b.DMUser(pointsMsg, fromID, whichJanet)
 }
 
 func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
