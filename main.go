@@ -119,6 +119,8 @@ func (b *Bot) Listen() {
 		switch ev := msg.Data.(type) {
 		case *slack.ReactionAddedEvent:
 			go b.handleReactionAddedEvent(msg.Data.(*slack.ReactionAddedEvent))
+		case *slack.ReactionRemovedEvent:
+			go b.handleReactionRemovedEvent(msg.Data.(*slack.ReactionRemovedEvent))
 		case *slack.MessageEvent:
 			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
 		case *slack.ConnectedEvent:
@@ -138,8 +140,6 @@ func (b *Bot) Listen() {
 
 	for msg := range b.Config.BadJanetSlack.IncomingEventsChan() {
 		switch ev := msg.Data.(type) {
-		case *slack.ReactionRemovedEvent:
-			go b.handleReactionRemovedEvent(msg.Data.(*slack.ReactionRemovedEvent))
 		case *slack.MessageEvent:
 			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
 		case *slack.ConnectedEvent:
@@ -162,9 +162,10 @@ func (b *Bot) Listen() {
 func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 
 	b.Config.Log.Info("sending message as")
-	b.Config.Log.Info(whichJanet)
 
 	if whichJanet == "badJanet" {
+		b.Config.Log.Info(whichJanet)
+
 		msg := b.Config.BadJanetSlack.NewOutgoingMessage(message, channel)
 		msg.ThreadTimestamp = thread
 		b.Config.BadJanetSlack.SendMessage(msg)
@@ -176,6 +177,8 @@ func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 			b.Config.BadJanetSlack.SendMessage(msg)
 		}
 	} else {
+		b.Config.Log.Info("good janet")
+
 		msg := b.Config.Slack.NewOutgoingMessage(message, channel)
 		msg.ThreadTimestamp = thread
 		b.Config.Slack.SendMessage(msg)
@@ -189,14 +192,19 @@ func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 }
 
 // DMUser sends a message directly to a Slack user.
-func (b *Bot) DMUser(message, user string, whichJanet string) {
-	_, _, channel, err := b.Config.Slack.OpenIMChannel(user)
+func (b *Bot) DMUser(message, user string, thread string, whichJanet string) {
+	_, _, channel, err := b.Config.Slack.OpenIMChannel(user)	
+
+	if whichJanet == "badJanet"{
+		_, _, channel, err = b.Config.BadJanetSlack.OpenIMChannel(user)
+	}
+
 	if err != nil {
 		b.Config.Log.Err(err).KV("user", user).Error("could not open IM channel with user")
 		return
 	}
 
-	b.SendMessage(message, channel, "",whichJanet)
+	b.SendMessage(message, channel, thread, whichJanet)
 }
 
 func (b *Bot) handleError(err error, channel, thread string) bool {
@@ -299,7 +307,7 @@ func (b *Bot) handleReactionEvent(fromID, toID, reason string, points int) {
 		whichJanet = "goodJanet"
 	}
 
-	b.DMUser(pointsMsg, fromID, whichJanet)
+	b.DMUser(pointsMsg, fromID, "", whichJanet)
 }
 
 func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
@@ -313,6 +321,8 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 			ev.Text = match[1] + "++ for doing good work"
 		}
 	}
+
+	b.Config.Log.Info(ev.Text)
 
 	switch {
 	case regexps.URL.MatchString(ev.Text):
