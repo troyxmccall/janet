@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"quotes"
 
 	"github.com/troyxmccall/janet/database"
 	"github.com/troyxmccall/janet/munge"
@@ -149,10 +150,6 @@ func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 		msg := b.Config.BadJanetSlack.NewOutgoingMessage(message, channel)
 		msg.ThreadTimestamp = thread
 		b.Config.BadJanetSlack.SendMessage(msg)
-		msg = b.Config.BadJanetSlack.NewOutgoingMessage("What up, ding-dongs? Yeah, so basically, um, the Fake Eleanor's a dirt bag, and these jabronis are gonna try and claim she's less of a dirt bag now, but she just stole your train, and she still sucks bad. And she belongs with us. Oh, also, check this out. [Farting] Nailed it.", channel)
-		msg.ThreadTimestamp = thread
-		b.Config.BadJanetSlack.SendMessage(msg)
-
 	} else {
 		msg := b.Config.Slack.NewOutgoingMessage(message, channel)
 		msg.ThreadTimestamp = thread
@@ -182,7 +179,7 @@ func (b *Bot) handleError(err error, channel, thread string) bool {
 		if b.Config.Debug {
 			message = err.Error()
 		} else {
-			message = "an error has occurred."
+			message = "hi, guys, i'm broken."
 		}
 
 		b.SendMessage(message, channel, thread, "")
@@ -437,7 +434,7 @@ func (b *Bot) getUserPointsMessage(name, reason string, points int) (string, err
 		return "", err
 	}
 
-	text := fmt.Sprintf("%s == %d (", name, user.Points)
+	text := fmt.Sprintf("%s now has %d points(", name, user.Points)
 
 	if points > 0 {
 		text += "+"
