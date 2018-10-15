@@ -159,7 +159,5 @@ func main() {
 		SelfPoints:        *selfkarma,
 	})
 
-	bot.Listen()
-
-	bot.BadJanetListen()
+  bot.Listen()
 }

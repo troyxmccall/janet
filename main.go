@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+  "sync"
 
 	"github.com/troyxmccall/janet/database"
 	"github.com/troyxmccall/janet/munge"
@@ -98,11 +99,13 @@ type Config struct {
 	UserBlacklist               StringList
 	Aliases                     UserAliases
 	Reactji                     *ReactjiConfig
+  WaitGroup                   *sync.WaitGroup
 }
 
 // A Bot is an instance of janet.
 type Bot struct {
 	Config *Config
+  WaitGroup *sync.WaitGroup
 }
 
 // New returns a pointer to an new instance of janet.
@@ -112,60 +115,77 @@ func New(config *Config) *Bot {
 	}
 }
 
+func (b *Bot) Listen() {
+
+  b.Config.Log.Info("listener called")
+
+  var wg sync.WaitGroup
+  wg.Add(2)
+
+  b.GoodJanetListen(wg)
+  b.BadJanetListen(wg)
+
+  wg.Wait()
+}
+
 // Listen starts listening for Slack messages and calls the
 // appropriate handlers.
-func (b *Bot) Listen() {
+func (b *Bot) GoodJanetListen(wg sync.WaitGroup) {
 
 	b.Config.Log.Info("good-janet listener called")
 
-	for msg := range b.Config.Slack.IncomingEventsChan() {
-		switch ev := msg.Data.(type) {
-		case *slack.ReactionAddedEvent:
-			go b.handleReactionAddedEvent(msg.Data.(*slack.ReactionAddedEvent))
-		case *slack.ReactionRemovedEvent:
-			go b.handleReactionRemovedEvent(msg.Data.(*slack.ReactionRemovedEvent))
-		case *slack.MessageEvent:
-			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
-		case *slack.ConnectedEvent:
-			b.Config.Log.Info("janet connected to slack")
+  go func() {
+    for msg := range b.Config.Slack.IncomingEventsChan() {
+      switch ev := msg.Data.(type) {
+      case *slack.ReactionAddedEvent:
+        go b.handleReactionAddedEvent(msg.Data.(*slack.ReactionAddedEvent))
+      case *slack.ReactionRemovedEvent:
+        go b.handleReactionRemovedEvent(msg.Data.(*slack.ReactionRemovedEvent))
+      case *slack.MessageEvent:
+        go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
+      case *slack.ConnectedEvent:
+        b.Config.Log.Info("janet connected to slack")
 
-			if b.Config.Debug {
-				b.Config.Log.KV("info", ev.Info).Info("got slack info")
-				b.Config.Log.KV("connections", ev.ConnectionCount).Info("got connection count")
-			}
-		case *slack.RTMError:
-			b.Config.Log.Err(ev).Error("slack rtm error")
-		case *slack.InvalidAuthEvent:
-			b.Config.Log.Fatal("invalid slack token")
-		default:
-		}
-	}
+        if b.Config.Debug {
+          b.Config.Log.KV("info", ev.Info).Info("got slack info")
+          b.Config.Log.KV("connections", ev.ConnectionCount).Info("got connection count")
+        }
+      case *slack.RTMError:
+        b.Config.Log.Err(ev).Error("slack rtm error")
+      case *slack.InvalidAuthEvent:
+        wg.Done()
+        b.Config.Log.Fatal("invalid slack token")
+      default:
+      }
+    }
+  }()
 }
 
-func (b *Bot) BadJanetListen() {
+func (b *Bot) BadJanetListen(wg sync.WaitGroup) {
 
 	b.Config.Log.Info("bad-janet listener called")
 
-	for msg := range b.Config.BadJanetSlack.IncomingEventsChan() {
-		switch ev := msg.Data.(type) {
-		case *slack.MessageEvent:
-			b.Config.Log.Info("bad-janet got a message")
-			go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
-		case *slack.ConnectedEvent:
-			b.Config.Log.Info("bad-janet connected to slack")
-			if b.Config.Debug {
-				b.Config.Log.KV("info", ev.Info).Info("got bad-janet slack info")
-				b.Config.Log.KV("connections", ev.ConnectionCount).Info("got bad-janet connection count")
-			}
-		case *slack.RTMError:
-			b.Config.Log.Err(ev).Error("bad-janet slack rtm error")
-		case *slack.InvalidAuthEvent:
-			b.Config.Log.Fatal("bad-janet invalid slack token")
-		default:
-		}
-	}
-
-	
+  go func() {
+    for msg := range b.Config.BadJanetSlack.IncomingEventsChan() {
+      switch ev := msg.Data.(type) {
+      case *slack.MessageEvent:
+        b.Config.Log.Info("bad-janet got a message")
+        go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
+      case *slack.ConnectedEvent:
+        b.Config.Log.Info("bad-janet connected to slack")
+        if b.Config.Debug {
+          b.Config.Log.KV("info", ev.Info).Info("got bad-janet slack info")
+          b.Config.Log.KV("connections", ev.ConnectionCount).Info("got bad-janet connection count")
+        }
+      case *slack.RTMError:
+        b.Config.Log.Err(ev).Error("bad-janet slack rtm error")
+      case *slack.InvalidAuthEvent:
+        wg.Done()
+        b.Config.Log.Fatal("bad-janet invalid slack token")
+      default:
+      }
+    }
+  }()
 }
 
 // SendMessage sends a message to a Slack channel.
@@ -203,7 +223,7 @@ func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 
 // DMUser sends a message directly to a Slack user.
 func (b *Bot) DMUser(message, user string, thread string, whichJanet string) {
-	_, _, channel, err := b.Config.Slack.OpenIMChannel(user)	
+	_, _, channel, err := b.Config.Slack.OpenIMChannel(user)
 
 	if whichJanet == "badJanet"{
 		_, _, channel, err = b.Config.BadJanetSlack.OpenIMChannel(user)
