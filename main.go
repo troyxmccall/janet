@@ -119,6 +119,7 @@ func (b *Bot) Listen() {
 
 	b.Config.Log.Info("listener called")
 
+	//add listenrs to waitgroup because they need to run at the same timee (concurrently)
 	var wg sync.WaitGroup
 	wg.Add(2)
 
@@ -145,7 +146,6 @@ func (b *Bot) GoodJanetListen(wg sync.WaitGroup) {
 				go b.handleMessageEvent(msg.Data.(*slack.MessageEvent))
 			case *slack.ConnectedEvent:
 				b.Config.Log.Info("janet connected to slack")
-
 				if b.Config.Debug {
 					b.Config.Log.KV("info", ev.Info).Info("got slack info")
 					b.Config.Log.KV("connections", ev.ConnectionCount).Info("got connection count")
