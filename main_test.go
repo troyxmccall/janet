@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/troyxmccall/janet/database"
 	"github.com/nlopes/slack"
+	"github.com/troyxmccall/janet/database"
 )
 
 func TestNew(t *testing.T) {

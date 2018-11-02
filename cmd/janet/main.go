@@ -11,8 +11,8 @@ import (
 	"github.com/troyxmccall/janet/ui/webui"
 
 	"github.com/aybabtme/log"
-	"github.com/troyxmccall/envy"
 	"github.com/nlopes/slack"
+	"github.com/troyxmccall/envy"
 )
 
 // cli flags
@@ -119,7 +119,6 @@ func main() {
 	badJanetSlackConnection.SetDebug(*debug)
 	go badJanetSlackConnection.ManageConnection()
 
-
 	// janet
 
 	var ui janetui.Provider
@@ -156,8 +155,8 @@ func main() {
 		Reactji:          reactjiConfig,
 		Motivate:         *motivate,
 		Aliases:          aliasMap,
-		SelfPoints:        *selfkarma,
+		SelfPoints:       *selfkarma,
 	})
 
-  bot.Listen()
+	bot.Listen()
 }
