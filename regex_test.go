@@ -13,7 +13,7 @@ type regexPattern struct {
 
 var regexTests = map[regexPattern]regexTestSuite{
 	regexPattern{
-		Regex: karmaReg.GetGive(),
+		Regex: karmaReg.MatchGive(),
 		Name:  "karma operations",
 	}: regexTestSuite{
 		true: []string{
@@ -40,7 +40,7 @@ var regexTests = map[regexPattern]regexTestSuite{
 		},
 	},
 	regexPattern{
-		Regex: karmaReg.GetQuery(),
+		Regex: karmaReg.MatchQuery(),
 		Name:  "print current karma points",
 	}: regexTestSuite{
 		true: []string{
@@ -57,7 +57,7 @@ var regexTests = map[regexPattern]regexTestSuite{
 		},
 	},
 	regexPattern{
-		Regex: karmaReg.GetMotivate(),
+		Regex: karmaReg.MatchMotivate(),
 		Name:  "motivate.im",
 	}: regexTestSuite{
 		true: []string{
