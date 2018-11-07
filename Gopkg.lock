@@ -78,14 +78,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:e0fda8cfabc9d21a5402d2575bb97470a4bf2f21c88e8c43ef7e37fdad36ae0c"
-  name = "github.com/troyxmccall/envy"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "29534b92be2db456812867a50ecfe52198c5a8dd"
-  version = "v1.1.0"
-
-[[projects]]
   branch = "master"
   digest = "1:a64e323dc06b73892e5bb5d040ced475c4645d456038333883f58934abbf6f72"
   name = "github.com/kr/logfmt"
@@ -130,6 +122,14 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:e0fda8cfabc9d21a5402d2575bb97470a4bf2f21c88e8c43ef7e37fdad36ae0c"
+  name = "github.com/troyxmccall/envy"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "29534b92be2db456812867a50ecfe52198c5a8dd"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:b24d38b282bacf9791408a080f606370efa3d364e4b5fd9ba0f7b87786d3b679"
   name = "github.com/urfave/cli"
   packages = ["."]
@@ -144,11 +144,11 @@
     "github.com/aybabtme/log",
     "github.com/dustin/go-humanize",
     "github.com/gorilla/mux",
-    "github.com/troyxmccall/envy",
     "github.com/mattn/go-sqlite3",
     "github.com/nlopes/slack",
     "github.com/pquerna/otp/totp",
     "github.com/satori/go.uuid",
+    "github.com/troyxmccall/envy",
     "github.com/urfave/cli",
   ]
   solver-name = "gps-cdcl"
