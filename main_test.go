@@ -3,6 +3,7 @@ package janet
 import (
 	"testing"
 	"time"
+	"sync"
 
 	"github.com/nlopes/slack"
 	"github.com/troyxmccall/janet/database"
@@ -38,12 +39,14 @@ func newBot(cfg *Config) (*Bot, *TestChatService, *TestDatabase) {
 }
 
 func TestListen(t *testing.T) {
+
 	b, cs, _ := newBot(&Config{})
 	hasExited := false
 	hasStarted := make(chan int)
 	go func() {
 		close(hasStarted)
-		b.Listen()
+		var wg sync.WaitGroup
+		b.GoodJanetListen(wg)
 		hasExited = true
 	}()
 	<-hasStarted
