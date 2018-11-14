@@ -117,7 +117,7 @@ func New(config *Config) *Bot {
 
 func (b *Bot) Listen() {
 
-	b.Config.Log.Info("listener called")
+	//b.Config.Log.Info("listener called")
 
 	//add listenrs to waitgroup because they need to run at the same timee (concurrently)
 	var wg sync.WaitGroup
@@ -133,7 +133,7 @@ func (b *Bot) Listen() {
 // appropriate handlers.
 func (b *Bot) GoodJanetListen(wg sync.WaitGroup) {
 
-	b.Config.Log.Info("good-janet listener called")
+	//b.Config.Log.Info("good-janet listener called")
 
 	go func() {
 		for msg := range b.Config.Slack.IncomingEventsChan() {
@@ -163,7 +163,7 @@ func (b *Bot) GoodJanetListen(wg sync.WaitGroup) {
 
 func (b *Bot) BadJanetListen(wg sync.WaitGroup) {
 
-	b.Config.Log.Info("bad-janet listener called")
+	//b.Config.Log.Info("bad-janet listener called")
 
 	go func() {
 		for msg := range b.Config.BadJanetSlack.IncomingEventsChan() {
@@ -191,10 +191,10 @@ func (b *Bot) BadJanetListen(wg sync.WaitGroup) {
 // SendMessage sends a message to a Slack channel.
 func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 
-	b.Config.Log.Info("sending message as")
+	//b.Config.Log.Info("sending message as")
 
 	if whichJanet == "badJanet" {
-		b.Config.Log.Info(whichJanet)
+		//b.Config.Log.Info(whichJanet)
 
 		msg := b.Config.BadJanetSlack.NewOutgoingMessage(message, channel)
 		msg.ThreadTimestamp = thread
@@ -207,7 +207,7 @@ func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 			b.Config.BadJanetSlack.SendMessage(msg)
 		}
 	} else {
-		b.Config.Log.Info("good janet")
+		//b.Config.Log.Info("good janet")
 
 		msg := b.Config.Slack.NewOutgoingMessage(message, channel)
 		msg.ThreadTimestamp = thread
@@ -352,7 +352,7 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 		}
 	}
 
-	b.Config.Log.Info(ev.Text)
+	//b.Config.Log.Info(ev.Text)
 
 	switch {
 	case regexps.URL.MatchString(ev.Text):
