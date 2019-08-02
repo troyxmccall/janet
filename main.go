@@ -352,27 +352,45 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 		}
 	}
 
-	//b.Config.Log.Info(ev.Text)
+	b.Config.Log.Info(ev.Text)
 
-	switch {
-	case regexps.URL.MatchString(ev.Text):
-		b.printURL(ev)
+	re := regexp.MustCompile("(<@[A-Za-z0-9]+>([\\+]{2,})?([\\-]{2,})?)")
+	splits := re.FindAllString(ev.Text, -1)
 
-	case regexps.GivePoints.MatchString(ev.Text):
-		b.applyPoints(ev, "")
+	if splits != nil {
+		for _, split := range splits {
 
-	case regexps.TakePoints.MatchString(ev.Text):
-		whichJanet := "badJanet"
-		b.applyPoints(ev, whichJanet)
+      b.Config.Log.Info("splitting text:")
+	     b.Config.Log.Info(split)
 
-	case regexps.Leaderboard.MatchString(ev.Text):
-		b.printLeaderboard(ev)
+      splitText := split
 
-	case regexps.Throwback.MatchString(ev.Text):
-		b.getThrowback(ev)
+			switch {
+				case regexps.GivePoints.MatchString(splitText):
+        b.Config.Log.Info("applying points for:")
+        b.Config.Log.Info(split)
+				b.applyPoints(ev, "", splitText)
 
-	case regexps.QueryPoints.MatchString(ev.Text):
-		b.queryPoints(ev)
+				case regexps.TakePoints.MatchString(splitText):
+				whichJanet := "badJanet"
+				b.applyPoints(ev, whichJanet, splitText)
+
+				case regexps.Throwback.MatchString(ev.Text):
+				b.getThrowback(ev)
+
+				case regexps.QueryPoints.MatchString(ev.Text):
+				b.queryPoints(ev)
+			}
+		}
+	} else {
+
+		switch {
+		case regexps.URL.MatchString(ev.Text):
+			b.printURL(ev)
+		case regexps.Leaderboard.MatchString(ev.Text):
+			b.printLeaderboard(ev)
+		}
+
 	}
 }
 
@@ -390,13 +408,13 @@ func (b *Bot) printURL(ev *slack.MessageEvent) {
 	b.SendMessage(url, ev.Channel, ev.ThreadTimestamp, "")
 }
 
-func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet string) {
+func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet string, splitText string) {
 
 	b.Config.Log.Info(whichJanet)
 
-	match := regexps.GivePoints.FindStringSubmatch(ev.Text)
+	match := regexps.GivePoints.FindStringSubmatch(splitText)
 	if len(match) == 0 {
-		match = regexps.TakePoints.FindStringSubmatch(ev.Text)
+		match = regexps.TakePoints.FindStringSubmatch(splitText)
 	}
 	if len(match) == 0 {
 		return
@@ -433,7 +451,7 @@ func (b *Bot) applyPoints(ev *slack.MessageEvent, whichJanet string) {
 	reason := match[3]
 
 	if !b.Config.SelfPoints && from == to {
-		b.SendMessage("Sorry, you are not allowed to do that.", ev.Channel, ev.ThreadTimestamp, whichJanet)
+		b.SendMessage("You cannot give yourself points.", ev.Channel, ev.ThreadTimestamp, whichJanet)
 		return
 	}
 

@@ -16,7 +16,7 @@ var karmaReg = &karmaRegex{
 	explicitAutocomplete: `(?:: )??`,
 	goodPoints:           `([\+]{2,})`,
 	badPoints:            `([\-]{2,})`,
-	reason:               `(?:(?: for)? +(.*))?`,
+	reason:               `(?:(?: for) +(.*))?`,
 }
 
 func (r *karmaRegex) MatchGive() *regexp.Regexp {
