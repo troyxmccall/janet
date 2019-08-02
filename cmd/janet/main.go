@@ -33,7 +33,7 @@ var (
 	upvotereactji    = make(janet.StringList, 0)
 	downvotereactji  = make(janet.StringList, 0)
 	aliases          = make(janet.StringList, 0)
-	selfkarma        = flag.Bool("selfkarma", true, "allow users to add/remove karma to themselves")
+	selfkarma        = flag.Bool("selfkarma", false, "allow users to add/remove karma to themselves")
 )
 
 func main() {

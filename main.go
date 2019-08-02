@@ -360,15 +360,10 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 	if splits != nil {
 		for _, split := range splits {
 
-      b.Config.Log.Info("splitting text:")
-	     b.Config.Log.Info(split)
-
       splitText := split
 
 			switch {
 				case regexps.GivePoints.MatchString(splitText):
-        b.Config.Log.Info("applying points for:")
-        b.Config.Log.Info(split)
 				b.applyPoints(ev, "", splitText)
 
 				case regexps.TakePoints.MatchString(splitText):

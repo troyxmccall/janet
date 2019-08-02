@@ -111,7 +111,7 @@ func (r *karmaRegex) MatchQuery() *regexp.Regexp {
 func (r *karmaRegex) MatchThrowback() *regexp.Regexp {
 	expression := strings.Join(
 		[]string{
-			`^karma(?:bot)? (?:throwback) ?(`,
+			`^janet(?:bot)? (?:throwback) ?(`,
 			r.user,
 			r.autocomplete,
 			`)?$`,
