@@ -115,7 +115,7 @@ func main() {
 	slackConnection := slack.New(*token, slack.OptionDebug(*debug)).NewRTM()
 	go slackConnection.ManageConnection()
 
-	badJanetSlackConnection := slack.New(*token, slack.OptionDebug(*debug)).NewRTM()
+	badJanetSlackConnection := slack.New(*badJanetToken, slack.OptionDebug(*debug)).NewRTM()
 	go badJanetSlackConnection.ManageConnection()
 
 	// janet
