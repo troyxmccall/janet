@@ -2,7 +2,7 @@ FROM golang:1.11-alpine
 
 # Need to mount /var/run/docker.sock
 # Need to mount /root/.config/goreleaser/github_token
-# Need to mount /go/src/github.com/kamaln7/karmabot
+# Need to mount /go/src/github.com/troyxmccall/janet
 
 RUN apk add --no-cache alpine-sdk git docker
 
@@ -13,5 +13,5 @@ RUN mkdir /tmp/goreleaser && \
     mv goreleaser /bin && \
     rm -r /tmp/goreleaser
 
-WORKDIR /go/src/github.com/kamaln7/karmabot
+WORKDIR /go/src/github.com/troyxmccall/janet
 ENTRYPOINT ["goreleaser"]
