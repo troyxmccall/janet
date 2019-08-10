@@ -1,40 +1,35 @@
 builds:
   - binary: janet
     main: ./cmd/janet/main.go
-    ldflags: -s -extldflags "-static"
+    ldflags: -s -w -X "github.com/troyxmccall/janet.Version={{.Version}}"
     goos:
       - linux
     goarch:
       - amd64
   - binary: janetctl
     main: ./cmd/janetctl/main.go
-    ldflags: -s -extldflags "-static"
+    ldflags: -s -w -X "github.com/troyxmccall/janet.Version={{.Version}}"
     goos:
       - linux
     goarch:
       - amd64
 snapshot:
   name_template: "{{ .Tag }}-next"
-git:
-  short_hash: true
 dockers:
-  - image: troyxmccall/janet
-    binary: janet
+  - binary: janet
     dockerfile: ./cmd/janet/Dockerfile-goreleaser
-    tag_templates:
-      - "{{ .Version }}"
-      - latest
-  - image: troyxmccall/janet
-    binary: janet
+    image_templates:
+      - "troyxmccall/janet:{{ .Version }}"
+      - "troyxmccall/janet:latest"
+  - binary: janet
     dockerfile: ./cmd/janet/Dockerfile-webui-goreleaser
-    tag_templates:
-      - "{{ .Version }}-webui"
-      - latest-webui
+    image_templates:
+      - "troyxmccall/janet:{{ .Version }}-webui"
+      - "troyxmccall/janet:latest-webui"
     extra_files:
       - www
-  - image: troyxmccall/janetctl
-    binary: janetctl
+  - binary: janetctl
     dockerfile: ./cmd/janetctl/Dockerfile-goreleaser
-    tag_templates:
-      - "{{ .Version }}"
-      - latest
+    image_templates:
+      - "troyxmccall/janetctl:{{ .Version }}"
+      - "troyxmccall/janetctl:latest"
