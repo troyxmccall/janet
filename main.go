@@ -352,7 +352,7 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 		}
 	}
 
-	b.Config.Log.Info(ev.Text)
+	//b.Config.Log.Info(ev.Text)
 
 	re := regexp.MustCompile("(<@[A-Za-z0-9]+>([\\+]{2,})?([\\-]{2,})?)")
 	splits := re.FindAllString(ev.Text, -1)
