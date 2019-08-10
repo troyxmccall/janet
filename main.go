@@ -134,7 +134,7 @@ func (b *Bot) Listen() {
 // appropriate handlers.
 func (b *Bot) GoodJanetListen(wg sync.WaitGroup) {
 
-  //b.Config.Log.Info("good-janet listener called")
+  b.Config.Log.Info("good-janet listener called")
 
   go func() {
     for msg := range b.Config.Slack.IncomingEventsChan() {
@@ -165,7 +165,7 @@ func (b *Bot) GoodJanetListen(wg sync.WaitGroup) {
 
 func (b *Bot) BadJanetListen(wg sync.WaitGroup) {
 
-  //b.Config.Log.Info("bad-janet listener called")
+  b.Config.Log.Info("bad-janet listener called")
 
   go func() {
     for msg := range b.Config.BadJanetSlack.IncomingEventsChan() {
