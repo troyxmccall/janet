@@ -111,12 +111,11 @@ func main() {
 	//our current logging library does not implement
 	//log.Logger
 	//slack.SetLogger(*ll)
-	slackConnection := slack.New(*token).NewRTM()
-	slackConnection.SetDebug(*debug)
+
+	slackConnection := slack.New(*token, slack.OptionDebug(*debug)).NewRTM()
 	go slackConnection.ManageConnection()
 
-	badJanetSlackConnection := slack.New(*badJanetToken).NewRTM()
-	badJanetSlackConnection.SetDebug(*debug)
+	badJanetSlackConnection := slack.New(*token, slack.OptionDebug(*debug)).NewRTM()
 	go badJanetSlackConnection.ManageConnection()
 
 	// janet

@@ -2,6 +2,7 @@ package janet
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -151,11 +152,11 @@ func (b *Bot) GoodJanetListen(wg sync.WaitGroup) {
 					b.Config.Log.KV("connections", ev.ConnectionCount).Info("got connection count")
 				}
 			case *slack.RTMError:
-				b.Config.Log.Err(ev).Error("slack rtm error")
-			case *slack.InvalidAuthEvent:
-				wg.Done()
-				b.Config.Log.Fatal("invalid slack token")
-			default:
+      b.Config.Log.Err(ev).Error("slack rtm error")
+    case *slack.InvalidAuthEvent:
+      b.Config.Log.Fatal("invalid slack token")
+    default:
+      b.Config.Log.KV("data", msg.Data).KV("event", reflect.TypeOf(msg.Data)).Info("unexpected slack api event")
 			}
 		}
 	}()
