@@ -14,8 +14,8 @@ var karmaReg = &karmaRegex{
 	user:                 `@??((?:<@)??\w[A-Za-z0-9_\-@<>]*?)`,
 	autocomplete:         `:?? ??`,
 	explicitAutocomplete: `(?:: )??`,
-	goodPoints:           `(\s?[\+]{2,})`,
-	badPoints:            `(\s?[\-]{2,})`,
+	goodPoints:           `([\+]{2,})`,
+	badPoints:            `([\-]{2,})`,
 	reason:               `(?:(?: for) +(.*))?`,
 }
 
