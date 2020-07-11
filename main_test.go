@@ -33,13 +33,11 @@ func newBot(cfg *Config) (*Bot, *TestChatService, *TestDatabase) {
 		Reason: "for being a swell guy",
 	})
 	cfg.Slack = cs
-	cfg.BadJanetSlack = cs
 	cfg.DB = db
 	return New(cfg), cs, db
 }
 
 func TestListen(t *testing.T) {
-
 	b, cs, _ := newBot(&Config{})
 	hasExited := false
 	hasStarted := make(chan int)
@@ -91,7 +89,7 @@ func TestHandleSlackEvent(t *testing.T) {
 				ItemUser: "onehundred_points",
 				Reaction: "+1",
 			},
-			ExpectMessage:    "onehundred_points == 101 (+1 for adding a :+1: reactji)",
+			ExpectMessage:    "onehundred_points == 101 (+1 for user added a :+1: reactji)",
 			ShouldHavePoints: 101,
 		},
 		{
@@ -102,7 +100,7 @@ func TestHandleSlackEvent(t *testing.T) {
 				ItemUser: "onehundred_points",
 				Reaction: "-1",
 			},
-			ExpectMessage:    "onehundred_points == 99 (-1 for adding a :-1: reactji)",
+			ExpectMessage:    "onehundred_points == 99 (-1 for user added a :-1: reactji)",
 			ShouldHavePoints: 99,
 		},
 		{
@@ -135,7 +133,7 @@ func TestHandleSlackEvent(t *testing.T) {
 				ItemUser: "onehundred_points",
 				Reaction: "+1",
 			},
-			ExpectMessage:    "onehundred_points == 99 (-1 for removing a :+1: reactji)",
+			ExpectMessage:    "onehundred_points == 99 (-1 for user removed a :+1: reactji)",
 			ShouldHavePoints: 99,
 		},
 		{
@@ -146,7 +144,7 @@ func TestHandleSlackEvent(t *testing.T) {
 				ItemUser: "onehundred_points",
 				Reaction: "-1",
 			},
-			ExpectMessage:    "onehundred_points == 101 (+1 for removing a :-1: reactji)",
+			ExpectMessage:    "onehundred_points == 101 (+1 for user removed a :-1: reactji)",
 			ShouldHavePoints: 101,
 		},
 		{
