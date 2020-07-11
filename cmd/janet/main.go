@@ -20,7 +20,7 @@ var (
 	token            = flag.String("token", "", "slack RTM token for Good Janet")
 	badJanetToken    = flag.String("badJanetToken", "", "slack RTM token for Bad Janet")
 	dbpath           = flag.String("db", "./db.sqlite3", "path to sqlite database")
-	maxpoints        = flag.Int("maxpoints", 6, "the maximum amount of points that users can give/take at once")
+	maxpoints        = flag.Int("maxpoints", 10, "the maximum amount of points that users can give/take at once")
 	leaderboardlimit = flag.Int("leaderboardlimit", 10, "the default amount of users to list in the leaderboard")
 	debug            = flag.Bool("debug", false, "set debug mode")
 	webuitotp        = flag.String("webui.totp", "", "totp key")
@@ -30,7 +30,11 @@ var (
 	motivate         = flag.Bool("motivate", true, "toggle motivate.im support")
 	blacklist        = make(janet.StringList, 0)
 	reactji          = flag.Bool("reactji", true, "use reactji as karma operations")
-
+	upvotereactji    = make(janet.StringList, 0)
+	downvotereactji  = make(janet.StringList, 0)
+	aliases          = make(janet.StringList, 0)
+	selfkarma        = flag.Bool("selfkarma", false, "allow users to add/remove karma to themselves")
+	replytype        = flag.String("replytype", "thread", "how to reply to commands (message, thread)")
 )
 
 func main() {
@@ -51,7 +55,6 @@ func main() {
 	// startup
 
 	ll.Info("starting both janets")
-
 	// reactjis
 
 	// reactji defaults
@@ -59,6 +62,8 @@ func main() {
 		upvotereactji.Set("+1")
 		upvotereactji.Set("thumbsup")
 		upvotereactji.Set("thumbsup_all")
+		upvotereactji.Set("joy")
+		upvotereactji.Set("100")
 	}
 	if len(downvotereactji) == 0 {
 		downvotereactji.Set("-1")
@@ -108,9 +113,8 @@ func main() {
 	//our current logging library does not implement
 	//log.Logger
 	//slack.SetLogger(*ll)
-
-	slackConnection := slack.New(*token, slack.OptionDebug(*debug)).NewRTM()
-	go slackConnection.ManageConnection()
+	SlackConnection := slack.New(*token, slack.OptionDebug(*debug)).NewRTM()
+	go SlackConnection.ManageConnection()
 
 	badJanetSlackConnection := slack.New(*badJanetToken, slack.OptionDebug(*debug)).NewRTM()
 	go badJanetSlackConnection.ManageConnection()
@@ -139,7 +143,7 @@ func main() {
 	go ui.Listen()
 
 	bot := janet.New(&janet.Config{
-		Slack:            &janet.SlackChatService{*slackConnection},
+		Slack:            &janet.SlackChatService{*SlackConnection},
 		BadJanetSlack:    &janet.SlackChatService{*badJanetSlackConnection},
 		UI:               ui,
 		Debug:            *debug,
@@ -151,7 +155,8 @@ func main() {
 		Reactji:          reactjiConfig,
 		Motivate:         *motivate,
 		Aliases:          aliasMap,
-
+		SelfPoints:       *selfkarma,
+		ReplyType:        *replytype,
 	})
 
 	bot.Listen()

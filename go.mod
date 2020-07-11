@@ -21,6 +21,7 @@ require (
 	github.com/pquerna/otp v1.1.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.4.0 // indirect
+	github.com/troyxmccall/envy v1.1.0
 	github.com/urfave/cli v1.20.0
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )

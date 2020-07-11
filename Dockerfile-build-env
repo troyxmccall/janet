@@ -13,5 +13,4 @@ RUN mkdir /tmp/goreleaser && \
     mv goreleaser /bin && \
     rm -r /tmp/goreleaser
 
-WORKDIR /go/src/github.com/troyxmccall/janet
 ENTRYPOINT ["goreleaser"]

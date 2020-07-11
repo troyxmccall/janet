@@ -44,8 +44,8 @@ github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdh
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
-github.com/troyxmccall/janet v1.5.5 h1:YZPCbo91btgDCH8gfW5Z6kl6+2TLynBlyAqwj+nbfbI=
-github.com/troyxmccall/janet v1.5.5/go.mod h1:3iXQxcvrJ82MSCT5IasPhEiMR01wro6mtP1++QJuyy0=
+github.com/troyxmccall/envy v1.1.0 h1:vbPmGJ0ApG8YunivLWxGTPbCiuuia2s2u9sKRJfVmQc=
+github.com/troyxmccall/envy v1.1.0/go.mod h1:IfB81cbL35YkzdVvWNW6ytJegqfdeJmf9fid7w1Fdd8=
 github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

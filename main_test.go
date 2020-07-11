@@ -33,13 +33,11 @@ func newBot(cfg *Config) (*Bot, *TestChatService, *TestDatabase) {
 		Reason: "for being a swell guy",
 	})
 	cfg.Slack = cs
-	cfg.BadJanetSlack = cs
 	cfg.DB = db
 	return New(cfg), cs, db
 }
 
 func TestListen(t *testing.T) {
-
 	b, cs, _ := newBot(&Config{})
 	hasExited := false
 	hasStarted := make(chan int)
