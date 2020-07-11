@@ -30,10 +30,7 @@ var (
 	motivate         = flag.Bool("motivate", true, "toggle motivate.im support")
 	blacklist        = make(janet.StringList, 0)
 	reactji          = flag.Bool("reactji", true, "use reactji as karma operations")
-	upvotereactji    = make(janet.StringList, 0)
-	downvotereactji  = make(janet.StringList, 0)
-	aliases          = make(janet.StringList, 0)
-	selfkarma        = flag.Bool("selfkarma", false, "allow users to add/remove karma to themselves")
+
 )
 
 func main() {
@@ -154,7 +151,7 @@ func main() {
 		Reactji:          reactjiConfig,
 		Motivate:         *motivate,
 		Aliases:          aliasMap,
-		SelfPoints:       *selfkarma,
+
 	})
 
 	bot.Listen()

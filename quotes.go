@@ -59,5 +59,5 @@ func goodJanetQuote() string {
 }
 
 func appendQuoteToMessage() bool {
-  return rand.Float32() < 0.2
+  return rand.Float32() < 0.1
 }

@@ -67,6 +67,9 @@ type ChatService interface {
 
   // GetUserInfo retrieves the complete user information for the specified username.
   GetUserInfo(user string) (*slack.User, error)
+
+  // PostEphemeral sends an ephemeral message to a user in a channel.
+  PostEphemeral(channelID, userID string, options ...slack.MsgOption) (string, error)
 }
 
 // SlackChatService is an implementation of ChatService using github.com/nlopes/slack.
@@ -96,11 +99,12 @@ type Config struct {
   MaxPoints, LeaderboardLimit int
   Log                         *log.Log
   UI                          ui.Provider
-  DB                          Database
   UserBlacklist               StringList
+  DB                          Database
   Aliases                     UserAliases
   Reactji                     *ReactjiConfig
   WaitGroup                   *sync.WaitGroup
+  ReplyType                   string
 }
 
 // A Bot is an instance of janet.
@@ -191,6 +195,43 @@ func (b *Bot) BadJanetListen(wg sync.WaitGroup) {
   }()
 }
 
+func (b *Bot) getReplyThread(message *slack.MessageEvent) string {
+  var thread string
+
+  switch b.Config.ReplyType {
+  case "message":
+    thread = message.ThreadTimestamp
+  case "thread":
+    if message.ThreadTimestamp != "" {
+      thread = message.ThreadTimestamp
+    } else {
+      thread = message.Timestamp
+    }
+  }
+
+  return thread
+}
+
+// SendReply sends a reply to a message, either as a new message in the channel or a thread (configurable)
+func (b *Bot) SendReply(reply string, message *slack.MessageEvent) {
+  switch b.Config.ReplyType {
+  case "ephemeral":
+    b.SendReplyEphemeral(reply, message)
+  default:
+    b.SendMessage(reply, message.Channel, b.getReplyThread(message))
+  }
+}
+
+// SendReplyEphemeral sends a reply to a message as an ephemeral message to the user
+func (b *Bot) SendReplyEphemeral(reply string, message *slack.MessageEvent) {
+  b.SendMessageEphemeral(message.Channel, message.User, reply, message.ThreadTimestamp)
+}
+
+// SendMessageEphemeral sends an ephemeral message to a user
+func (b *Bot) SendMessageEphemeral(reply, channel, user, thread string) {
+  b.Config.Slack.PostEphemeral(channel, user, slack.MsgOptionText(reply, false), slack.MsgOptionTS(thread))
+}
+
 // SendMessage sends a message to a Slack channel.
 func (b *Bot) SendMessage(message, channel, thread string, whichJanet string) {
 
@@ -240,22 +281,22 @@ func (b *Bot) DMUser(message, user string, thread string, whichJanet string) {
   b.SendMessage(message, channel, thread, whichJanet)
 }
 
-func (b *Bot) handleError(err error, channel, thread string) bool {
+func (b *Bot) handleError(err error, message *slack.MessageEvent) bool {
   if err == nil {
     return false
   }
 
   b.Config.Log.Err(err).Error("error")
-  if channel != "" {
-    var message string
-    if b.Config.Debug {
-      message = err.Error()
-    } else {
-      message = "hi, guys, i'm broken."
-    }
+  if message != nil {
+    var text string
+		if b.Config.Debug {
+			text = err.Error()
+		} else {
+			text = "an error has occurred."
+		}
 
-    b.SendMessage(message, channel, thread, "")
-  }
+		b.SendReply(text, message)
+	}
 
   return true
 }
@@ -278,8 +319,8 @@ func (b *Bot) handleReactionAddedEvent(ev *slack.ReactionAddedEvent) {
     return
   }
 
-  reason = fmt.Sprintf("adding a :%s: reactji", ev.Reaction)
-  b.handleReactionEvent(ev.User, ev.ItemUser, reason, points)
+  reason = fmt.Sprintf("added a :%s: reactji", ev.Reaction)
+  b.handleReactionEvent(ev, reason, points)
 }
 
 func (b *Bot) handleReactionRemovedEvent(ev *slack.ReactionRemovedEvent) {
@@ -300,21 +341,28 @@ func (b *Bot) handleReactionRemovedEvent(ev *slack.ReactionRemovedEvent) {
     return
   }
 
-  reason = fmt.Sprintf("removing a :%s: reactji", ev.Reaction)
-  b.handleReactionEvent(ev.User, ev.ItemUser, reason, points)
+  reason = fmt.Sprintf("removed a :%s: reactji", ev.Reaction)
+  b.handleReactionEvent((*slack.ReactionAddedEvent)(ev), reason, points)
 }
 
-func (b *Bot) handleReactionEvent(fromID, toID, reason string, points int) {
-  from, err := b.getUserNameByID(fromID)
-  if b.handleError(err, "", "") {
+// at this point there is no difference between ReactionAddedEvent and ReactionRemovedEvent
+func (b *Bot) handleReactionEvent(ev *slack.ReactionAddedEvent, reason string, points int) {
+  // look up usernames
+  from, err := b.getUserNameByID(ev.User)
+  if b.handleError(err, nil) {
     return
   }
-  to, err := b.getUserNameByID(toID)
-  if b.handleError(err, "", "") {
+  to, err := b.getUserNameByID(ev.ItemUser)
+  if b.handleError(err, nil) {
     return
   }
+
+  // add the actor's username to the reason
+  reason = fmt.Sprintf("%s %s", from, reason)
+
   from, to = strings.ToLower(from), strings.ToLower(to)
 
+  // insert points
   record := &database.Points{
     From:   from,
     To:     to,
@@ -323,24 +371,24 @@ func (b *Bot) handleReactionEvent(fromID, toID, reason string, points int) {
   }
 
   err = b.Config.DB.InsertPoints(record)
-  if b.handleError(err, "", "") {
+  if b.handleError(err, nil) {
     return
   }
 
   pointsMsg, err := b.getUserPointsMessage(to, reason, points)
-  if b.handleError(err, "", "") {
-    return
-  }
+  if b.handleError(err, nil) {
+		return
+	}
 
+	// reply as ephemeral message
   whichJanet := ""
-
   if points < 0 {
     whichJanet = "badJanet"
   } else {
     whichJanet = "goodJanet"
   }
 
-  b.DMUser(pointsMsg, fromID, "", whichJanet)
+	b.SendMessageEphemeral(pointsMsg, ev.Item.Channel, ev.User, "")
 }
 
 func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
@@ -394,7 +442,7 @@ func (b *Bot) handleMessageEvent(ev *slack.MessageEvent) {
 
 func (b *Bot) printURL(ev *slack.MessageEvent) {
   url, err := b.Config.UI.GetURL("/")
-  if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
+  if b.handleError(err, ev) {
     return
   }
 
@@ -484,29 +532,29 @@ func (b *Bot) getThrowback(ev *slack.MessageEvent) {
   var (
     user string
     err  error
-  )
-  if match[1] != "" {
-    user, err = b.parseUser(match[1])
-    if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
-      return
-    }
-    user = strings.ToLower(user)
-  } else {
-    user, err = b.getUserNameByID(ev.User)
-    if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
-      return
-    }
-  }
+	)
+	if match[1] != "" {
+		user, err = b.parseUser(match[1])
+		if b.handleError(err, ev) {
+			return
+		}
+		user = strings.ToLower(user)
+	} else {
+		user, err = b.getUserNameByID(ev.User)
+		if b.handleError(err, ev) {
+			return
+		}
+	}
 
-  throwback, err := b.Config.DB.GetThrowback(user)
-  if err == database.ErrNoSuchUser {
-    b.SendMessage(fmt.Sprintf("could not find any karma operations for %s", user), ev.Channel, ev.ThreadTimestamp, "")
-    return
-  }
+	throwback, err := b.Config.DB.GetThrowback(user)
+	if err == database.ErrNoSuchUser {
+		b.SendReply(fmt.Sprintf("could not find any karma operations for %s", user), ev)
+		return
+	}
 
-  if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
-    return
-  }
+	if b.handleError(err, ev) {
+		return
+	}
 
   date := humanize.Time(throwback.Timestamp)
   if throwback.Reason != "" {
@@ -514,7 +562,7 @@ func (b *Bot) getThrowback(ev *slack.MessageEvent) {
   }
   text := fmt.Sprintf("%s received %d points from %s %s%s", munge.Munge(throwback.To), throwback.Points.Points, munge.Munge(throwback.From), date, throwback.Reason)
 
-  b.SendMessage(text, ev.Channel, ev.ThreadTimestamp, "")
+	b.SendReply(text, ev)
 }
 
 func (b *Bot) getUserPointsMessage(name, reason string, points int) (string, error) {
@@ -548,7 +596,7 @@ func (b *Bot) printLeaderboard(ev *slack.MessageEvent) {
   if match[1] != "" {
     var err error
     limit, err = strconv.Atoi(match[1])
-    if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
+    if b.handleError(err, ev) {
       return
     }
   }
@@ -556,7 +604,7 @@ func (b *Bot) printLeaderboard(ev *slack.MessageEvent) {
   text := fmt.Sprintf("*top %d leaderboard*\n", limit)
 
   url, err := b.Config.UI.GetURL(fmt.Sprintf("/leaderboard/%d", limit))
-  if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
+  if b.handleError(err, ev) {
     return
   }
   if url != "" {
@@ -564,7 +612,7 @@ func (b *Bot) printLeaderboard(ev *slack.MessageEvent) {
   }
 
   leaderboard, err := b.Config.DB.GetLeaderboard(limit)
-  if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
+  if b.handleError(err, ev) {
     return
   }
 
@@ -572,7 +620,7 @@ func (b *Bot) printLeaderboard(ev *slack.MessageEvent) {
     text += fmt.Sprintf("%d. %s == %d\n", i+1, munge.Munge(user.Name), user.Points)
   }
 
-  b.SendMessage(text, ev.Channel, ev.ThreadTimestamp, "")
+  b.SendReply(text, ev)
 }
 
 func (b *Bot) parseUser(user string) (string, error) {
@@ -608,7 +656,7 @@ func (b *Bot) queryPoints(ev *slack.MessageEvent) {
   }
 
   name, err := b.parseUser(match[1])
-  if b.handleError(err, ev.Channel, ev.ThreadTimestamp) {
+  if b.handleError(err, ev) {
     return
   }
   name = strings.ToLower(name)
@@ -617,9 +665,9 @@ func (b *Bot) queryPoints(ev *slack.MessageEvent) {
   switch {
   case err == database.ErrNoSuchUser:
     // override debug mode
-    b.SendMessage(err.Error(), ev.Channel, ev.ThreadTimestamp, "")
-  case b.handleError(err, ev.Channel, ev.ThreadTimestamp):
+    b.SendReply(err.Error(), ev)
+  case b.handleError(err, ev):
   default:
-    b.SendMessage(fmt.Sprintf("%s == %d", user.Name, user.Points), ev.Channel, ev.ThreadTimestamp, "")
+    b.SendReply(fmt.Sprintf("%s == %d", user.Name, user.Points), ev)
   }
 }
